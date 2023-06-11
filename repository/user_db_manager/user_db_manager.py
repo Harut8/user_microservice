@@ -14,7 +14,7 @@ class UserDbManager(UserDbInterface):
 
     @staticmethod
     async def get_user_from_db(*, username) -> Record:
-        _user_info = await fetch_row_transaction("""select * from users where u_username = $1""", username)
+        _user_info = await fetch_row_transaction("""select c_id, c_pass, c_email from company where c_email = $1""", username)
         return _user_info
 
     @staticmethod

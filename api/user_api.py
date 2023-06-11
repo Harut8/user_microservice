@@ -22,23 +22,22 @@ async def user_ping():
 @user_router.post("/signin")
 async def user_login(user_info: OAuth2PasswordRequestForm = Depends()):
     user = await UserServiceManager.get_user_from_db(username=user_info.username)
-    print(user)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect email or password"
         )
 
-    # hashed_pass = user['password']
-    # if not verify_password(user_info.password, hashed_pass):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail="Incorrect email or password"
-    #     )
+    hashed_pass = user.c_pass
+    if not verify_password(user_info.password, hashed_pass):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect email or password"
+        )
 
     return {
-        "access_token": create_access_token(user.u_username),
-        "refresh_token": create_refresh_token(user.u_username),
+        "access_token": create_access_token(user.c_id),
+        "refresh_token": create_refresh_token(user.c_id),
     }
 
 
@@ -50,6 +49,11 @@ async def user_signup(add_user_data: AccountRegModel):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect data"
         )
+
+
+@user_router.get('/verify-email')
+async def verify_registration_with_email(token_verify: str, data: str):
+    print(token_verify)
 
 
 @user_router.get("/friends")

@@ -7,8 +7,9 @@ from pydantic import BaseModel, Field, validator, ValidationError, validate_emai
 class UserInfo(BaseModel):
     """DATA CLASS USED FOR RETURNING INFO AFTER CHECKING PASSWORD
        WITH THIS WE CREATE TOKENS"""
-    u_uuid: Union[str, uuid.UUID]
-    u_username: str
+    c_id: Union[str, uuid.UUID]
+    c_pass: str
+    c_email: str
 
 
 class AccountRegModel(BaseModel):

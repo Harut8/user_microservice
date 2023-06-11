@@ -7,7 +7,7 @@ from typing import Union
 from service.user_service_manager.user_service_interface import UserServiceInterface
 from service.url_token_generators.token_creator import create_token_for_email_verify, generate_url_for_email_verify
 from mailing.verify_mailing.send_account_verify_link import send_email_verify_link
-from amqp_service.celery_app.celery_app import celery_decor
+
 
 class UserServiceManager(UserServiceInterface):
 
