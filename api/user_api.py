@@ -67,7 +67,7 @@ async def verify_registration_with_email(token_verify: str, data: str):
         return {"status": "Redirect error"}
 
 
-@user_router.get("/friends")
+@user_router.get("/get-user")
 async def get_user_friends(current_username=Depends(get_current_user)):
-    print(current_username)
+    return current_username
 

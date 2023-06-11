@@ -35,14 +35,13 @@ async def decode_token(token):
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return payload
-
+    return token_data
 
 async def get_current_user(token: str = Depends(base_auth)):
     from repository.user_db_manager.user_db_manager import UserDbManager
     payload = await decode_token(token)
-
-    user = await UserDbManager.get_user_from_db(username=payload.sub)
+    print(payload)
+    user = await UserDbManager.get_user_from_db_by_uuid(uuid=payload.sub)
 
     if user is None:
         raise HTTPException(
