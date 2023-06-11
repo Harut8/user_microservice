@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from service.user_service_manager.user_service_manager import UserServiceManager
 from starlette import status
+from starlette.responses import RedirectResponse
 from models.user_model.user_model import AccountRegModel
 from auth.auth import \
     get_current_user,\
@@ -53,7 +54,17 @@ async def user_signup(add_user_data: AccountRegModel):
 
 @user_router.get('/verify-email')
 async def verify_registration_with_email(token_verify: str, data: str):
-    print(token_verify)
+    _verify_state = await UserServiceManager.verify_registration_with_email(token_verify)
+    print(_verify_state)
+    if _verify_state:
+        redirect_page = RedirectResponse("https://pcassa.ru/")
+        return redirect_page
+    elif _verify_state == -1:
+        return {"status": "EMPTY USER ID"}
+    elif _verify_state == -2:
+        return {"status": "WRONG VERIFY ID"}
+    else:
+        return {"status": "Redirect error"}
 
 
 @user_router.get("/friends")

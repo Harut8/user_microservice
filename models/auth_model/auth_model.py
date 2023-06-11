@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from datetime import timedelta
 from typing import Union
@@ -12,5 +13,5 @@ class UserView(BaseModel):
 
 
 class PayloadToken(BaseModel):
-    exp: timedelta
+    exp: datetime.datetime
     sub: Union[str, uuid.UUID]

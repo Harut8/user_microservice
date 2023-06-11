@@ -18,7 +18,7 @@ class UserDbManager(UserDbInterface):
         return _user_info
 
     @staticmethod
-    async def post_acc_into_temp_db(*, item: AccountRegModel) -> Union[dict[str, uuid.UUID | str], None]:
+    async def post_acc_into_temp_db(*, item: AccountRegModel) -> Union[dict[str, uuid.UUID | str], None, bool]:
         """ INSERT acc INFO INTO TEMP DATABASE"""
         try:
             #  get from registered users where username and phone number
@@ -35,7 +35,7 @@ class UserDbManager(UserDbInterface):
                 item.acc_phone
             )
             if _check_acc_in_temp:  # there is a company with these parameters
-                return -1
+                return False
 
             hash_pass = get_hashed_password(item.acc_pass)
             await execute_delete_query(
@@ -93,6 +93,18 @@ class UserDbManager(UserDbInterface):
                                          item.acc_address,
                                          )
             return {'temp_id': _temp_id, 'temp_email': item.acc_email}
+        except Exception as e:
+            print(e)
+            return
+
+    @staticmethod
+    async def verify_registration_with_email(*, temp_id):
+        try:
+            _verify_state = await fetch_row_transaction(
+                """SELECT del_tmp_add_company($1)""",
+                temp_id
+            )
+            return _verify_state
         except Exception as e:
             print(e)
             return

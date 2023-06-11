@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Union, Any
 from models.auth_model.auth_model import PayloadToken, UserView
 from fastapi import Depends, HTTPException
@@ -15,8 +15,7 @@ base_auth = OAuth2PasswordBearer(
 )
 
 
-async def get_current_user(token: str = Depends(base_auth)):
-    from repository.user_db_manager.user_db_manager import UserDbManager
+async def decode_token(token):
     try:
         payload = jwt.decode(
             token,
@@ -24,7 +23,7 @@ async def get_current_user(token: str = Depends(base_auth)):
             algorithms=ParseEnv.ALGORITHM
         )
         token_data = PayloadToken(**payload)
-        if datetime.fromtimestamp(token_data.exp) < datetime.now():
+        if token_data.exp < datetime.utcnow().replace(tzinfo=timezone.utc):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token expired",
@@ -36,8 +35,14 @@ async def get_current_user(token: str = Depends(base_auth)):
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    return payload
 
-    user = await UserDbManager.get_user_from_db(username=token_data.sub)
+
+async def get_current_user(token: str = Depends(base_auth)):
+    from repository.user_db_manager.user_db_manager import UserDbManager
+    payload = await decode_token(token)
+
+    user = await UserDbManager.get_user_from_db(username=payload.sub)
 
     if user is None:
         raise HTTPException(
@@ -78,3 +83,4 @@ def get_hashed_password(password: str) -> str:
 
 def verify_password(password: str, hashed_pass: str) -> bool:
     return password_context.verify(password, hashed_pass)
+
