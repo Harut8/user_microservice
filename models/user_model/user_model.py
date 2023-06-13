@@ -1,6 +1,7 @@
 import re
 import uuid
-from typing import Union
+from enum import Enum
+from typing import Union, Any
 from pydantic import BaseModel, Field, validator, ValidationError, validate_email
 
 
@@ -53,3 +54,26 @@ class AccountRegModel(BaseModel):
             raise ValidationError('PASSWORD ERROR')
         except Exception:
             raise ValidationError('PASSWORD ERROR')
+
+
+class AccountViewInnerModel(BaseModel):
+    t_id: Union[str, uuid.UUID]
+    t_name: str | None
+    end_license: Any
+    order_state: bool
+
+
+class AccountViewModel(BaseModel):
+    c_id: Union[str, uuid.UUID]
+    c_name: str
+    c_unique_id: str
+    c_contact_name: str
+    c_phone: str
+    c_email: str
+    tarif_list: list[AccountViewInnerModel]
+
+
+class Language(Enum):
+    ru = 'ru'
+    en = 'en'
+    hy = 'hy'

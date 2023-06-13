@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from service.user_service_manager.user_service_manager import UserServiceManager
 from starlette import status
 from starlette.responses import RedirectResponse
-from models.user_model.user_model import AccountRegModel
+from models.user_model.user_model import AccountRegModel, Language
 from auth.auth import \
     get_current_user,\
     verify_password,\
@@ -68,6 +68,12 @@ async def verify_registration_with_email(token_verify: str, data: str):
 
 
 @user_router.get("/get-user")
-async def get_user_friends(current_username=Depends(get_current_user)):
-    return current_username
+async def get_user_friends(language: Language,  current_user=Depends(get_current_user)):
+    _user_and_tarif = await UserServiceManager.get_user_info(language.value, current_user.c_id)
+    if _user_and_tarif:
+        return _user_and_tarif
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Incorrect data"
+    )
 

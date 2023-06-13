@@ -16,6 +16,18 @@ async def fetch_row_transaction(query, *args):
     return info
 
 
+async def fetch_transaction(query, *args):
+    info = None
+    async with DbConnection() as connection:
+        async with connection.acquire() as db:
+            async with db.transaction():
+                if args:
+                    info = await db.fetch(query, *args)
+                else:
+                    info = await db.fetch(query)
+    return info
+
+
 async def execute_delete_query(query, *args):
     async with DbConnection() as connection:
         async with connection.acquire() as db:

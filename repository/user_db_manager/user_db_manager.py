@@ -3,7 +3,8 @@ from typing import Union
 
 from auth.auth import get_hashed_password
 from models.user_model.user_model import AccountRegModel
-from repository.core.core import DbConnection, fetch_row_transaction, insert_row_transaction, execute_delete_query
+from repository.core.core import DbConnection, fetch_row_transaction, insert_row_transaction, fetch_transaction, \
+    execute_delete_query
 from dataclasses import dataclass
 from repository.user_db_manager.user_db_interface import UserDbInterface
 from asyncpg import Record
@@ -117,3 +118,51 @@ class UserDbManager(UserDbInterface):
         except Exception as e:
             print(e)
             return
+    @staticmethod
+    async def get_user_info(language, user_uuid):
+        _user_info = await fetch_row_transaction(
+            """
+            SELECT  c_id,
+                    c_unique_id,
+                    c_name,
+                    c_contact_name,
+                    c_phone,
+                    c_email
+            FROM company
+            WHERE c_id = $1
+            """, user_uuid)
+        _user_info = {
+            'c_id': _user_info['c_id'],
+            'c_unique_id': _user_info['c_unique_id'],
+            'c_name': _user_info['c_name'],
+            'c_contact_name': _user_info['c_contact_name'],
+            'c_phone': _user_info['c_phone'],
+            'c_email': _user_info['c_email'],
+        }
+        _tariff_info = await fetch_transaction(
+            """
+            SELECT 
+                      distinct t_id,
+                      t_name[$2],
+                      end_license::date,
+                      true as order_state
+                FROM tarif 
+                join client_tarif ct on ct.c_t_id = $1 and ct.c_t_tarif_id  = t_id
+                where t_id in (select tarif_id_fk from saved_order_and_tarif soat where company_id = $1
+                and for_view=true)
+                union all
+                SELECT 
+                      distinct t_id,
+                      t_name[$2],
+                      null::date,
+                      false as order_state
+                FROM tarif 
+                where t_id in (select tarif_id_fk from saved_order_and_tarif soat where company_id = $1
+                and for_view=true
+                except select c_t_tarif_id  from client_tarif ct2  where c_t_id  = $1)""",
+            user_uuid,
+            language
+        )
+        data = _user_info | {"tarif_list": _tariff_info}
+        print(data)
+        return data

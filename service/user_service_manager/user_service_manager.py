@@ -1,13 +1,19 @@
 from auth.auth import decode_token
 from uuid import UUID
 from repository.user_db_manager.user_db_manager import UserDbManager
-from models.user_model.user_model import UserInfo, AccountRegModel
+from models.user_model.user_model import UserInfo, AccountRegModel, AccountViewModel
 from typing import Union
 from service.user_service_manager.user_service_interface import UserServiceInterface
 from service.url_token_generators.token_creator import create_token_for_email_verify, generate_url_for_email_verify
 from mailing.verify_mailing.send_account_verify_link import send_email_verify_link
 from asyncpg import Record
 
+
+language_dict = {
+        "ru": 1,
+        "en": 2,
+        "hy": 3
+    }
 
 class UserServiceManager(UserServiceInterface):
 
@@ -56,6 +62,25 @@ class UserServiceManager(UserServiceInterface):
             _unique_id = _info["c_unique_id"]
             _c_email = _info["c_email"]
             return True
+        except Exception as e:
+            print(e)
+            return
+
+    @staticmethod
+    async def get_user_info(language, user_uuid):
+        try:
+            _user_info = await UserDbManager.get_user_info(language_dict[language],user_uuid)
+            if _user_info is not None:
+                return AccountViewModel(
+                    c_id=_user_info["c_id"],
+                    c_unique_id=_user_info["c_unique_id"],
+                    c_name=_user_info["c_name"],
+                    c_contact_name=_user_info["c_contact_name"],
+                    c_phone=_user_info["c_phone"],
+                    c_email=_user_info["c_email"],
+                    tarif_list=_user_info["tarif_list"],
+                )
+            return
         except Exception as e:
             print(e)
             return
