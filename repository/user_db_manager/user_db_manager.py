@@ -166,3 +166,10 @@ class UserDbManager(UserDbInterface):
         data = _user_info | {"tarif_list": _tariff_info}
         print(data)
         return data
+
+    @staticmethod
+    async def get_app_links():
+        _links = await fetch_transaction(
+            """SELECT * FROM links order by product_id"""
+        )
+        return _links

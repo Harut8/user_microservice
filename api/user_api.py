@@ -67,11 +67,22 @@ async def verify_registration_with_email(token_verify: str, data: str):
         return {"status": "Redirect error"}
 
 
-@user_router.get("/get-user")
+@user_router.get("/me")
 async def get_user_friends(language: Language,  current_user=Depends(get_current_user)):
     _user_and_tarif = await UserServiceManager.get_user_info(language.value, current_user.c_id)
     if _user_and_tarif:
         return _user_and_tarif
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Incorrect data"
+    )
+
+
+@user_router.get('/links')
+async def get_app_links():
+    _app_links = await UserServiceManager.get_app_links()
+    if _app_links:
+        return _app_links
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Incorrect data"
