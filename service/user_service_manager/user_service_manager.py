@@ -84,3 +84,20 @@ class UserServiceManager(UserServiceInterface):
         except Exception as e:
             print(e)
             return
+
+    @staticmethod
+    async def get_app_links():
+        try:
+            __app = ("cass_stantion_name",
+                 "mobile_cass_name",
+                 "web_manager_name",
+                 "mobile_manager_name",
+                 )
+
+            _links = await UserDbManager.get_app_links()
+            if _links is not None:
+                return {i: j["product_link"] for i, j in zip(__app, _links)}
+            return
+        except Exception as e:
+            print(e)
+            return
