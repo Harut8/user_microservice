@@ -173,3 +173,8 @@ class UserDbManager(UserDbInterface):
             """SELECT * FROM links order by product_id"""
         )
         return _links
+
+    @staticmethod
+    async def update_password(_email, _password):
+        await fetch_row_transaction("""UPDATE company SET c_pass = $1 WHERE c_email = $2""", _password, _email)
+        return True

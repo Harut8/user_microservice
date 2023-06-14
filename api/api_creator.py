@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from api.user_api import user_router
 from uvicorn import run
 from repository.core.core import DbConnection
+from service.redis_client.redis_client import RedisClient
 
 app = FastAPI(version="1.0.0")
 app.include_router(user_router, prefix="/api/v1")
@@ -10,6 +11,8 @@ app.include_router(user_router, prefix="/api/v1")
 @app.on_event("startup")
 async def on_start_server():
     await DbConnection.create_connection()
+    RedisClient()
+
 
 
 @app.middleware("http")

@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from service.user_service_manager.user_service_manager import UserServiceManager
 from starlette import status
 from starlette.responses import RedirectResponse
-from models.user_model.user_model import AccountRegModel, Language
+from models.user_model.user_model import AccountRegModel, Language, AccRecoveryEmail, AccountVerifyModel, AccountRecModel
 from auth.auth import \
     get_current_user,\
     verify_password,\
@@ -50,6 +50,35 @@ async def user_signup(add_user_data: AccountRegModel):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect data"
         )
+
+
+@user_router.post('/recovery/mail')
+async def recovery_send_mail(receiver_info: AccRecoveryEmail):
+    _is_send = await UserServiceManager.send_recovery_code(receiver_info.receiver_email)
+    if _is_send:
+        return {"status": "success"}
+    raise HTTPException(400, detail='ERROR')
+
+
+@user_router.post('/recovery')
+async def recovery_pass(new_info: AccountRecModel):
+    _update_status = await UserServiceManager.update_password(
+        new_info.acc_email,
+        new_info.acc_new_pass
+    )
+    if _update_status:
+        return {"status": "success"}
+    raise HTTPException(400, detail='ERROR')
+
+
+@user_router.post('/recovery/check')
+async def recovery_check(check_info: AccountVerifyModel):
+    _check_state = await UserServiceManager.check_recovery_code(
+        check_info.receiver_email,
+        check_info.code_for_verify)
+    if _check_state:
+        return {"status": "success"}
+    raise HTTPException(400, detail='ERROR')
 
 
 @user_router.get('/verify-email')

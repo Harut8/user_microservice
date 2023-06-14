@@ -3,9 +3,12 @@ from uuid import UUID
 from repository.user_db_manager.user_db_manager import UserDbManager
 from models.user_model.user_model import UserInfo, AccountRegModel, AccountViewModel
 from typing import Union
+
+from service.redis_client.redis_client import RedisClient
 from service.user_service_manager.user_service_interface import UserServiceInterface
 from service.url_token_generators.token_creator import create_token_for_email_verify, generate_url_for_email_verify
 from mailing.verify_mailing.send_account_verify_link import send_email_verify_link
+from mailing.verify_mailing.send_account_recovery_code import send_account_recovery_code
 from asyncpg import Record
 
 
@@ -14,6 +17,7 @@ language_dict = {
         "en": 2,
         "hy": 3
     }
+
 
 class UserServiceManager(UserServiceInterface):
 
@@ -98,6 +102,42 @@ class UserServiceManager(UserServiceInterface):
             if _links is not None:
                 return {i: j["product_link"] for i, j in zip(__app, _links)}
             return
+        except Exception as e:
+            print(e)
+            return
+
+    @staticmethod
+    async def send_recovery_code(receiver_info):
+        try:
+            import random
+            _message = "".join([str(random.randint(0, 9)) for i in range(9)])
+            if RedisClient.set_var(receiver_info, _message, 600):
+                send_account_recovery_code.delay(receiver_email=receiver_info, message=_message)
+                return True
+        except Exception as e:
+            print(e)
+            return
+
+    @staticmethod
+    async def check_recovery_code(receiver_email, verify_code):
+        try:
+            _code = RedisClient.get_var(receiver_email).decode('utf-8')
+            if _code == str(verify_code):
+                return True
+            return
+        except Exception as e:
+            print(e)
+            return
+
+    @staticmethod
+    async def update_password(_email, _password):
+        try:
+            from auth.auth import get_hashed_password
+            _password = get_hashed_password(_password)
+            _state = await UserDbManager.update_password(_email, _password)
+            if not _state:
+                return
+            return True
         except Exception as e:
             print(e)
             return

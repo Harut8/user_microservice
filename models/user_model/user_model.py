@@ -32,7 +32,7 @@ class AccountRegModel(BaseModel):
     @validator('acc_phone')
     def check_acc_phone(cls, acc_phone):
         try:
-            if re.match(r'\+374\d{8}', acc_phone):
+            if re.match(r'\+(374|7|8)\d{8}', acc_phone):
                 return acc_phone
         except Exception:
             raise ValidationError('PHONE ERROR')
@@ -77,3 +77,18 @@ class Language(Enum):
     ru = 'ru'
     en = 'en'
     hy = 'hy'
+
+
+class AccRecoveryEmail(BaseModel):
+    receiver_email: str
+
+
+class AccountRecModel(BaseModel):
+    """ MODEL FOR ACCOUNT RECOVERY"""
+    acc_email: str
+    acc_new_pass: str
+
+
+class AccountVerifyModel(BaseModel):
+    receiver_email: str
+    code_for_verify: int
