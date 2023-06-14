@@ -92,3 +92,7 @@ class AccountRecModel(BaseModel):
 class AccountVerifyModel(BaseModel):
     receiver_email: str
     code_for_verify: int
+
+
+class Refresh(BaseModel):
+    refresh_token: str

@@ -3,11 +3,16 @@ from fastapi.security import OAuth2PasswordRequestForm
 from service.user_service_manager.user_service_manager import UserServiceManager
 from starlette import status
 from starlette.responses import RedirectResponse
-from models.user_model.user_model import AccountRegModel, Language, AccRecoveryEmail, AccountVerifyModel, AccountRecModel
+from models.user_model.user_model import AccountRegModel,\
+    Language,\
+    AccRecoveryEmail,\
+    AccountVerifyModel,\
+    AccountRecModel,\
+    Refresh
 from auth.auth import \
     get_current_user,\
     verify_password,\
-    get_hashed_password,\
+    check_refresh_token,\
     create_access_token,\
     create_refresh_token
 
@@ -105,6 +110,17 @@ async def get_user_friends(language: Language,  current_user=Depends(get_current
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Incorrect data"
     )
+
+
+@user_router.post('/refresh-token')
+async def refresh_token(refresh: Refresh, user=Depends(get_current_user)):
+    _refresh_check = await check_refresh_token(refresh.refresh_token)
+    if _refresh_check:
+        return {
+            "access_token": create_access_token(user.c_id),
+            "refresh_token": create_refresh_token(user.c_id),
+        }
+    raise HTTPException(status_code=401, detail="ERROR", headers={'status': 'TOKEN UPDATE ERROR'})
 
 
 @user_router.get('/links')

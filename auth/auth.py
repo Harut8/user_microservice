@@ -37,6 +37,30 @@ async def decode_token(token):
         )
     return token_data
 
+
+async def check_refresh_token(token):
+    try:
+        payload = jwt.decode(
+            token,
+            ParseEnv.JWT_REFRESH_KEY,
+            algorithms=ParseEnv.ALGORITHM
+        )
+        token_data = PayloadToken(**payload)
+        if token_data.exp < datetime.utcnow().replace(tzinfo=timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except(jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return True
+
+
 async def get_current_user(token: str = Depends(base_auth)):
     from repository.user_db_manager.user_db_manager import UserDbManager
     payload = await decode_token(token)
