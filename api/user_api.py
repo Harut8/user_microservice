@@ -112,6 +112,11 @@ async def get_user_friends(language: Language,  current_user=Depends(get_current
     )
 
 
+@user_router.get("/get-user")
+async def get_user(user=Depends(get_current_user)):
+    return user
+
+
 @user_router.post('/refresh-token')
 async def refresh_token(refresh: Refresh, user=Depends(get_current_user)):
     _refresh_check = await check_refresh_token(refresh.refresh_token)

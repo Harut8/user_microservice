@@ -87,6 +87,7 @@ class AccountRecModel(BaseModel):
     """ MODEL FOR ACCOUNT RECOVERY"""
     acc_email: str
     acc_new_pass: str
+    license: str = None
 
 
 class AccountVerifyModel(BaseModel):
