@@ -82,6 +82,17 @@ class Language(Enum):
 class AccRecoveryEmail(BaseModel):
     receiver_email: str
 
+    @validator('receiver_email')
+    def check_acc_email(cls, acc_email):
+        try:
+            _re_string = r'^[a-zA-Z0-9.@]+$'
+            if not re.match(_re_string, acc_email):
+                raise ValidationError('EMAIL ERROR')
+            if validate_email(acc_email):
+                return acc_email
+        except Exception:
+            raise ValidationError('EMAIL ERROR')
+
 
 class AccountRecModel(BaseModel):
     """ MODEL FOR ACCOUNT RECOVERY"""
@@ -89,10 +100,32 @@ class AccountRecModel(BaseModel):
     acc_new_pass: str
     license: str = None
 
+    @validator('acc_email')
+    def check_acc_email(cls, acc_email):
+        try:
+            _re_string = r'^[a-zA-Z0-9.@]+$'
+            if not re.match(_re_string, acc_email):
+                raise ValidationError('EMAIL ERROR')
+            if validate_email(acc_email):
+                return acc_email
+        except Exception:
+            raise ValidationError('EMAIL ERROR')
+
 
 class AccountVerifyModel(BaseModel):
     receiver_email: str
     code_for_verify: int
+
+    @validator('receiver_email')
+    def check_acc_email(cls, acc_email):
+        try:
+            _re_string = r'^[a-zA-Z0-9.@]+$'
+            if not re.match(_re_string, acc_email):
+                raise ValidationError('EMAIL ERROR')
+            if validate_email(acc_email):
+                return acc_email
+        except Exception:
+            raise ValidationError('EMAIL ERROR')
 
 
 class Refresh(BaseModel):
