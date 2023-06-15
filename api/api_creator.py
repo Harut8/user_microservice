@@ -29,4 +29,4 @@ def ping():
 
 
 def run_server():
-    run(app)
+    run(app, host='192.168.0.121')

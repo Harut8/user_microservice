@@ -56,7 +56,7 @@ class UserServiceManager(UserServiceInterface):
         """
         try:
             temp_payload = await decode_token(token_verify)
-            temp_id = temp_payload['sub']
+            temp_id = temp_payload.sub
             if not temp_id:
                 return -1
             _verify_state = await UserDbManager.verify_registration_with_email(temp_id=temp_id)

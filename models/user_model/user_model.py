@@ -15,24 +15,24 @@ class UserInfo(BaseModel):
 
 class AccountRegModel(BaseModel):
     """Model for registration fields"""
-    acc_contact_name: str
-    acc_org_name: str
+    acc_contact_name: str = Field(regex=r'^[A-Za-z0-9]+$')
+    acc_org_name: str = Field(regex=r'^[A-Za-z0-9]+$')
     acc_email: str
-    acc_pass: str
+    acc_pass: str = Field(regex=r'^[A-Za-z0-9\/*.%$^]+$')
     acc_phone: str
-    acc_address: str | None
-    acc_country: int = Field(default=1)
-    acc_inn: str | None = Field(default=None, description="Идентификационный номер налогоплательщика", regex=r'\d{1,15}')
-    acc_kpp: str | None = Field(default=None, description="код причины постановки", regex=r'\d{1,15}')
-    acc_bik: str | None = Field(default=None, description="Бик (банковский идентификационный код)", regex=r'\d{1,15}')
-    acc_bank_name: str | None = Field(default=None, description="", regex=r'\w{1,40}')
-    acc_k_schet: str | None = Field(default=None, description="К/счет (корреспондентский счет)", regex=r'\d{20}')
-    acc_r_schet: str | None = Field(default=None, description="Р/счет (расчетный счет)", regex=r'\d{20}')
+    acc_address: str | None = Field(regex=r'^[A-Za-z0-9\/*.%$^#@]+$')
+    acc_country: int = Field(default=1,gt=0, lt=3)
+    acc_inn: str | None = Field(default=None, description="Идентификационный номер налогоплательщика", regex=r'^\d{1,15}$')
+    acc_kpp: str | None = Field(default=None, description="код причины постановки", regex=r'^\d{1,15}$')
+    acc_bik: str | None = Field(default=None, description="Бик (банковский идентификационный код)", regex=r'^\d{1,15}$')
+    acc_bank_name: str | None = Field(default=None, description="", regex=r'^\w{1,40}$')
+    acc_k_schet: str | None = Field(default=None, description="К/счет (корреспондентский счет)", regex=r'^\d{20}$')
+    acc_r_schet: str | None = Field(default=None, description="Р/счет (расчетный счет)", regex=r'^\d{20}$')
 
     @validator('acc_phone')
     def check_acc_phone(cls, acc_phone):
         try:
-            if re.match(r'\+(374|7|8)\d{8}', acc_phone):
+            if re.match(r'^\+(374|7|8)\d{8}$', acc_phone):
                 return acc_phone
         except Exception:
             raise ValidationError('PHONE ERROR')

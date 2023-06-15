@@ -47,3 +47,4 @@ def send_email_verify_link(receiver_email: str, message: str):
     except Exception as e:
         print(e)
         return False
+
