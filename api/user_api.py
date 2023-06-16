@@ -65,23 +65,24 @@ async def recovery_send_mail(receiver_info: AccRecoveryEmail):
     raise HTTPException(400, detail='ERROR')
 
 
-@user_router.post('/recovery')
-async def recovery_pass(new_info: AccountRecModel):
-    _update_status = await UserServiceManager.update_password(
-        new_info.acc_email,
-        new_info.acc_new_pass
-    )
-    if _update_status:
-        return {"status": "success"}
-    raise HTTPException(400, detail='ERROR')
-
-
 @user_router.post('/recovery/check')
 async def recovery_check(check_info: AccountVerifyModel):
     _check_state = await UserServiceManager.check_recovery_code(
         check_info.receiver_email,
         check_info.code_for_verify)
     if _check_state:
+        return {"status": "success"}
+    raise HTTPException(400, detail='ERROR')
+
+
+@user_router.post('/recovery')
+async def recovery_pass(new_info: AccountRecModel):
+    _update_status = await UserServiceManager.update_password(
+        new_info.acc_email,
+        new_info.acc_new_pass,
+        new_info.license
+    )
+    if _update_status:
         return {"status": "success"}
     raise HTTPException(400, detail='ERROR')
 

@@ -130,11 +130,14 @@ class UserServiceManager(UserServiceInterface):
             return
 
     @staticmethod
-    async def update_password(_email, _password):
+    async def update_password(_email, _password, _license):
         try:
+            from service.parser import ParseEnv
+            if _license != ParseEnv.LICENSE:
+                return
             from auth.auth import get_hashed_password
             _password = get_hashed_password(_password)
-            _state = await UserDbManager.update_password(_email, _password)
+            _state = await UserDbManager.update_password(_email, _password,)
             if not _state:
                 return
             return True
