@@ -97,7 +97,7 @@ class AccRecoveryEmail(BaseModel):
 class AccountRecModel(BaseModel):
     """ MODEL FOR ACCOUNT RECOVERY"""
     acc_email: str
-    acc_new_pass: str
+    acc_new_pass: str = Field(regex=r'^[A-Za-z0-9\/*.%$^]+$')
     license: str = None
 
     @validator('acc_email')

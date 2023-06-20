@@ -14,7 +14,6 @@ async def on_start_server():
     RedisClient()
 
 
-
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     x = request.query_params
@@ -29,4 +28,5 @@ def ping():
 
 
 def run_server():
-    run(app, host='192.168.0.121')
+    run(app,)
+#host='192.168.0.121'
