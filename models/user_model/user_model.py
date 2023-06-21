@@ -15,12 +15,12 @@ class UserInfo(BaseModel):
 
 class AccountRegModel(BaseModel):
     """Model for registration fields"""
-    acc_contact_name: str = Field(regex=r'^[A-Za-z0-9]+$')
-    acc_org_name: str = Field(regex=r'^[A-Za-z0-9]+$')
+    acc_contact_name: str = Field(regex=r'^[A-Za-z0-9\s]+$')
+    acc_org_name: str = Field(regex=r'^[A-Za-z0-9\s]+$')
     acc_email: str
     acc_pass: str = Field(regex=r'^[A-Za-z0-9\/*.%$^]+$')
     acc_phone: str
-    acc_address: str | None = Field(regex=r'^[A-Za-z0-9\/*.%$^#@]+$')
+    acc_address: str | None = Field(regex=r'^[A-Za-z0-9\/*.%$^#@\s]+$')
     acc_country: int = Field(default=1,gt=0, lt=3)
     acc_inn: str | None = Field(default=None, description="Идентификационный номер налогоплательщика", regex=r'^\d{1,15}$')
     acc_kpp: str | None = Field(default=None, description="код причины постановки", regex=r'^\d{1,15}$')

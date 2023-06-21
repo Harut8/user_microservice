@@ -5,7 +5,7 @@ from email.utils import formataddr
 from amqp_service.celery_app.celery_app import celery_decor
 
 
-@celery_decor.task()
+#@celery_decor.task()
 def send_email_verify_link(receiver_email: str, message: str):
     """ FUNCTION FOR SENDING EMAIL"""
     try:
@@ -14,8 +14,9 @@ def send_email_verify_link(receiver_email: str, message: str):
         sender_email = ParseEnv.EMAIL_
         password = ParseEnv.EMAIL_PASS
         receiver_add = receiver_email
-        smtp_server = smtplib.SMTP("smtp.mail.ru", 587)
+        smtp_server = smtplib.SMTP("mail.pcassa.ru", 587)
         smtp_server.starttls()  # setting up to TLS connection
+        #smtp_server.ehlo()
         ##############
         msg = MIMEMultipart('alternative')
         msg['Subject'] = "VERIFY PCASSA ACCOUNT"
@@ -23,7 +24,7 @@ def send_email_verify_link(receiver_email: str, message: str):
         msg['To'] = receiver_email
         # smtp_server.starttls() #setting up to TLS connection
         smtp_server.login(sender_email, password)  # logging into out email id
-
+        print('login')
         text = "ПОДТВЕРДИТЬ АККАУНТ PCASSA"
         link_for_verify = u'<a href="{mes}">НАЖМИТЕ, ЧТОБЫ ПОДТВЕРДИТЬ ВАШ АККАУНТ PCASSA </a>'.format(mes=message)
         html = f"""\
@@ -40,11 +41,10 @@ def send_email_verify_link(receiver_email: str, message: str):
         part2 = MIMEText(html, 'html')
         msg.attach(part1)
         msg.attach(part2)
-        # smtp_server.sendmail(sender_email, receiver_add, msg.as_string())
-        # smtp_server.quit()
+        smtp_server.sendmail(sender_email, receiver_add, msg.as_string())
+        smtp_server.quit()
         print('SUCCESS EMAIL Sent')
         return True
     except Exception as e:
         print(e)
         return False
-
